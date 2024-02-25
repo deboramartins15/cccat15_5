@@ -8,10 +8,11 @@ export default class Ride {
 	private to: Coord;
 	private lastPosition: Coord;
 
-	private constructor (readonly rideId: string, readonly passengerId: string, fromLat: number, fromLong: number, toLat: number, toLong: number, private status: string, readonly date: Date, lastLat: number, lastLong: number, private distance: number, private driverId?: string) {
+	private constructor (readonly rideId: string, readonly passengerId: string, fromLat: number, fromLong: number, toLat: number, toLong: number, private status: string, readonly date: Date, lastLat: number, lastLong: number, private distance: number, private driverId?: string, private fare?: number) {
 		this.from = new Coord(fromLat, fromLong);
 		this.to = new Coord(toLat, toLong);
 		this.lastPosition = new Coord(lastLat, lastLong);
+		this.fare = fare;
 	}
 
 	static create (passengerId: string, fromLat: number, fromLong: number, toLat: number, toLong: number) {
@@ -21,8 +22,8 @@ export default class Ride {
 		return new Ride(rideId, passengerId, fromLat, fromLong, toLat, toLong, status, date, fromLat, fromLong, 0);
 	}
 
-	static restore (rideId: string, passengerId: string, fromLat: number, fromLong: number, toLat: number, toLong: number, status: string, date: Date, lastLat: number, lastLong: number, distance: number, driverId?: string) {
-		return new Ride(rideId, passengerId, fromLat, fromLong, toLat, toLong, status, date, lastLat, lastLong, distance, driverId);
+	static restore (rideId: string, passengerId: string, fromLat: number, fromLong: number, toLat: number, toLong: number, status: string, date: Date, lastLat: number, lastLong: number, distance: number, driverId?: string, fare ?: number) {
+		return new Ride(rideId, passengerId, fromLat, fromLong, toLat, toLong, status, date, lastLat, lastLong, distance, driverId, fare);
 	}
 
 	accept (driverId: string) {
@@ -41,6 +42,13 @@ export default class Ride {
 		const newLastPosition = new Coord(lat, long);
 		this.distance += DistanceCalculator.calculate(this.lastPosition, newLastPosition);
 		this.lastPosition = newLastPosition;
+	}
+
+	finish(rideId: string){
+		if(this.status !== "in_progress") throw new Error("Invalid status");
+		this.status = "completed";
+		const fareCalculator = FareCalculatorFactory.create(this.date);
+		this.fare = fareCalculator.calculate(this.distance);
 	}
 
 	getStatus () {
@@ -77,5 +85,9 @@ export default class Ride {
 
 	getLastLong () {
 		return this.lastPosition.getLong();
+	}
+
+	getFare(){
+		return this.fare;
 	}
 }

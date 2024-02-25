@@ -10,6 +10,7 @@ create table cccat15.account (
 	car_plate text null,
 	is_passenger boolean not null default false,
 	is_driver boolean not null default false
+	credit_card_token text null
 );
 
 create table cccat15.ride (
@@ -34,4 +35,12 @@ create table cccat15.position (
 	lat numeric,
 	long numeric,
 	date timestamp
+);
+
+create table cccat15.transaction (
+	transaction_id uuid primary key,
+	ride_id uuid,
+	amount numeric,
+	date timestamp,
+	status text
 );

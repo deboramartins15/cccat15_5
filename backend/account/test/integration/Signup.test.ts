@@ -26,7 +26,8 @@ test("Deve criar a conta de um passageiro", async function () {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "97456321558",
-		isPassenger: true
+		isPassenger: true,
+		creditCardToken: 'token-cartao-credito'
 	};
 	const outputSignup = await signup.execute(input);
 	expect(outputSignup.accountId).toBeDefined();
@@ -59,7 +60,8 @@ test("Não deve criar um passageiro se o nome for inválido", async function () 
 		name: "John",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "97456321558",
-		isPassenger: true
+		isPassenger: true,
+		creditCardToken: 'token-cartao-credito'
 	};
 	await expect(() => signup.execute(input)).rejects.toThrow(new Error("Invalid name"));
 });
@@ -69,7 +71,8 @@ test("Não deve criar um passageiro se o email for inválido", async function ()
 		name: "John Doe",
 		email: `john.doe${Math.random()}`,
 		cpf: "97456321558",
-		isPassenger: true
+		isPassenger: true,
+		creditCardToken: 'token-cartao-credito'
 	};
 	await expect(() => signup.execute(input)).rejects.toThrow(new Error("Invalid email"));
 });
@@ -79,7 +82,8 @@ test("Não deve criar um passageiro se o cpf for inválido", async function () {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "974563215",
-		isPassenger: true
+		isPassenger: true,
+		creditCardToken: 'token-cartao-credito'
 	};
 	await expect(() => signup.execute(input)).rejects.toThrow(new Error("Invalid cpf"));
 });
@@ -89,7 +93,8 @@ test("Não deve criar um passageiro se a conta já existe", async function () {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "97456321558",
-		isPassenger: true
+		isPassenger: true,
+		creditCardToken: 'token-cartao-credito'
 	};
 	await signup.execute(input);
 	await expect(() => signup.execute(input)).rejects.toThrow(new Error("Account already exists"));

@@ -12,7 +12,6 @@ import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionR
 import { RideRepositoryDatabase } from "../../src/infra/repository/RideRepository";
 
 let connection: DatabaseConnection;
-let signup: Signup;
 let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
@@ -23,12 +22,11 @@ let getPositions: GetPositions;
 beforeEach(async () => {
 	connection = new PgPromiseAdapter();
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const accountRepository = new AccountRepositoryDatabase(connection);
+	accountGateway = new AccountGatewayHttp();
 	const positionRepository = new PositionRepositoryDatabase(connection);
-	signup = new Signup(accountRepository, new MailerGatewayConsole());
-	requestRide = new RequestRide(rideRepository, accountRepository);
-	getRide = new GetRide(rideRepository, accountRepository);
-	acceptRide = new AcceptRide(rideRepository, accountRepository);
+	requestRide = new RequestRide(rideRepository, accountGateway);
+	getRide = new GetRide(rideRepository, accountGateway);
+	acceptRide = new AcceptRide(rideRepository, accountGateway);
 	startRide = new StartRide(rideRepository);
 	updatePosition = new UpdatePosition(rideRepository, positionRepository);
 	getPositions = new GetPositions(positionRepository);
@@ -41,7 +39,7 @@ test("Deve iniciar uma corrida", async function () {
 		cpf: "97456321558",
 		isPassenger: true
 	};
-	const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+	const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
 	const inputRequestRide = {
 		passengerId: outputSignupPassenger.accountId,
 		fromLat: -27.584905257808835,
@@ -57,7 +55,7 @@ test("Deve iniciar uma corrida", async function () {
 		carPlate: "AAA9999",
 		isDriver: true
 	};
-	const outputSignupDriver = await signup.execute(inputSignupDriver);
+	const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
 	const inputAcceptRide = {
 		rideId: outputRequestRide.rideId,
 		driverId: outputSignupDriver.accountId

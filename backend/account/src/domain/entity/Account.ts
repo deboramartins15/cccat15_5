@@ -11,24 +11,24 @@ export default class Account {
 	private cpf: Cpf;
 	private carPlate?: CarPlate;
 
-	private constructor (readonly accountId: string, name: string, email: string, cpf: string, readonly isPassenger: boolean, readonly isDriver: boolean, carPlate?: string) {
+	private constructor (readonly accountId: string, name: string, email: string, cpf: string, readonly isPassenger: boolean, readonly isDriver: boolean, carPlate?: string, private creditCardToken?: string) {
 		this.name = new Name(name);
 		this.email = new Email(email);
 		this.cpf = new Cpf(cpf);
 		if (isDriver && carPlate) this.carPlate = new CarPlate(carPlate);
 	}
+	
+	static create (name: string, email: string, cpf: string, isPassenger: boolean, isDriver: boolean, carPlate?: string, creditCardToken?: string) {
+		const accountId = crypto.randomUUID();
+		return new Account(accountId, name, email, cpf, isPassenger, isDriver, carPlate, creditCardToken);
+	}
+
+	static restore (accountId: string, name: string, email: string, cpf: string, isPassenger: boolean, isDriver: boolean, carPlate?: string, creditCardToken?: string) {
+		return new Account(accountId, name, email, cpf, isPassenger, isDriver, carPlate, creditCardToken);
+	}
 
 	setCpf (cpf: string) {
 		this.cpf = new Cpf(cpf);
-	}
-
-	static create (name: string, email: string, cpf: string, isPassenger: boolean, isDriver: boolean, carPlate?: string) {
-		const accountId = crypto.randomUUID();
-		return new Account(accountId, name, email, cpf, isPassenger, isDriver, carPlate);
-	}
-
-	static restore (accountId: string, name: string, email: string, cpf: string, isPassenger: boolean, isDriver: boolean, carPlate?: string) {
-		return new Account(accountId, name, email, cpf, isPassenger, isDriver, carPlate);
 	}
 
 	setName (name: string) {
@@ -49,5 +49,9 @@ export default class Account {
 
 	getCarPlate () {
 		return this.carPlate?.getValue();
+	}
+
+	getCreditCardToken(){
+		return this.creditCardToken;
 	}
 }

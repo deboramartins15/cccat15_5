@@ -4,23 +4,21 @@ import RequestRide from "../../src/application/usecase/RequestRide";
 import Signup from "../../src/application/usecase/Signup";
 import DatabaseConnection, { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
 import { MailerGatewayConsole } from "../../src/infra/gateway/MailerGateway";
-import { AccountRepositoryDatabase } from "../../src/infra/repository/AccountRepository";
 import { RideRepositoryDatabase } from "../../src/infra/repository/RideRepository";
 
 let connection: DatabaseConnection;
-let signup: Signup;
 let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
+let accountGateway: AccountGateway;
 
 beforeEach(async () => {
 	connection = new PgPromiseAdapter();
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const accountRepository = new AccountRepositoryDatabase(connection);
-	signup = new Signup(accountRepository, new MailerGatewayConsole());
-	requestRide = new RequestRide(rideRepository, accountRepository);
-	getRide = new GetRide(rideRepository, accountRepository);
-	acceptRide = new AcceptRide(rideRepository, accountRepository);
+	accountGateway = new AccountGatewayHttp();
+	requestRide = new RequestRide(rideRepository, accountGateway);
+	getRide = new GetRide(rideRepository, accountGateway);
+	acceptRide = new AcceptRide(rideRepository, accountGateway);
 })
 
 test("Deve aceitar uma corrida", async function () {
@@ -30,7 +28,7 @@ test("Deve aceitar uma corrida", async function () {
 		cpf: "97456321558",
 		isPassenger: true
 	};
-	const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+	const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
 	const inputRequestRide = {
 		passengerId: outputSignupPassenger.accountId,
 		fromLat: -27.584905257808835,
@@ -46,7 +44,7 @@ test("Deve aceitar uma corrida", async function () {
 		carPlate: "AAA9999",
 		isDriver: true
 	};
-	const outputSignupDriver = await signup.execute(inputSignupDriver);
+	const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
 	const inputAcceptRide = {
 		rideId: outputRequestRide.rideId,
 		driverId: outputSignupDriver.accountId
